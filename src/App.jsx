@@ -9,6 +9,7 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   const [tempUuid, setTempUuid] = useState("");
+  console.log(tasks);
 
   // * Read
   useEffect(() => {
@@ -35,6 +36,7 @@ function App() {
     set(ref(db, `/${uuid}`), {
       todo: input,
       uuid,
+      edited: false,
     });
 
     setInput("");
@@ -57,7 +59,12 @@ function App() {
   };
 
   const handleSubmitChange = () => {
-    update()
+    update(ref(db, `/${tempUuid}`), {
+      todo: input,
+      uuid: tempUuid,
+      edited: true,
+    });
+    setIsEdit(false);
   };
 
   return (
@@ -86,7 +93,7 @@ function App() {
               </button>
               <button
                 onClick={handleCloseUpdate}
-                className="btn btn-primary btn-sm"
+                className="btn btn-primary btn-sm ml-3"
                 type="submit"
               >
                 Close
@@ -109,7 +116,18 @@ function App() {
           {tasks.map((task, index) => (
             <div key={index} className="task-list mb-5">
               <h3 className="text-xl font-semibold mb-2">
-                {index + 1}: {task.todo}
+                <span>
+                  {index + 1}: {task.todo}
+                </span>
+                {task.edited ? (
+                  <>
+                    <span className="badge badge-accent badge-outline ml-3">
+                      Edited
+                    </span>
+                  </>
+                ) : (
+                  ""
+                )}
               </h3>
               <button
                 onClick={() => handleUpdate(task)}
